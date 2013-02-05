@@ -6,23 +6,34 @@ AC_PRESERVE_HELP_ORDER
 AC_PROG_AWK
 AC_PROG_OCAML
 AC_PROG_CC
-AC_PROG_CXX
 AC_SUBST([AR],[ar])
 
 
 # Detect LLVM install
-AC_CHECK_PROG([LLC], [llc], [llc], [AC_MSG_ERROR([cannot find llc])])
-AC_CHECK_PROG([OPT], [opt], [opt], [AC_MSG_ERROR([cannot find opt])])
+AC_CHECK_PROG([LLC], [llc], [llc])
+test -z "$LLC" && AC_MSG_ERROR([cannot find llc])
+AC_CHECK_PROG([OPT], [opt], [opt])
+test -z "$OPT" && AC_MSG_ERROR([cannot find opt])
 $LLC -version | grep version
+
 AC_MSG_CHECKING([LLVM OCaml bindings])
 AC_ARG_VAR([LLVM_DIR],[directory of LLVM OCaml bindings])
-for d in "$LLVM_DIR" "$($OCAMLC -where)" ; do
-    if test -r "$d/llvm.cma" ; then
+_ocaml_libdir="$($OCAMLC -where)"
+unset _llvm_dir
+for d in "$LLVM_DIR" "$_ocaml_libdir" ; do
+    if test -r "$d/llvm.a" ; then
        AC_MSG_RESULT([$d])
-       LLVM_DIR="$d"
+       _llvm_dir="$d"
        break
     fi
 done
+if test -z "$_llvm_dir" ; then
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([cannot find LLVM OCaml bindings])
+fi
+LLVM_DIR="$_llvm_dir"
+test "$LLVM_DIR" != "$_ocaml_libdir" && LLVM_INCLUDE="-I $LLVM_DIR"
+AC_SUBST([LLVM_INCLUDE])
 
 
 # Check C type sizes
@@ -32,8 +43,9 @@ AC_CHECK_SIZEOF([void *])
 
 # Configure the linml compiler
 echo
+_type_size="${ac_cv_sizeof_long}:${ac_cv_sizeof_void_p}"
 AS_IF(
-[test "${ac_cv_sizeof_long}:${ac_cv_sizeof_void_p}" == "4:4"],[
+[test "$_type_size" == "4:4"],[
 echo -e "Architecture\t\t: 32 bits"
 march=ARCH_32
 stack_align=4
@@ -42,7 +54,7 @@ max_reg_ret=4
 data_layout="s0:32:32"
 AC_DEFINE([ARCH_32])],
 
-[test "${ac_cv_sizeof_long}:${ac_cv_sizeof_void_p}" == "8:8"],[
+[test "$_type_size" == "8:8"],[
 echo -e "Architecture\t\t: 64 bits (LP64)"
 march=ARCH_64
 stack_align=8
@@ -51,7 +63,7 @@ max_reg_ret=4
 data_layout="s0:64:64"
 AC_DEFINE([ARCH_64])],
 
-[test "${ac_cv_sizeof_long}:${ac_cv_sizeof_void_p}" == "4:8"],[
+[test "$_type_size" == "4:8"],[
 echo -e "Architecture\t\t: 64 bits (LLP64)"
 AC_MSG_ERROR([Unsupported architecture])],
 

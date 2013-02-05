@@ -4,14 +4,11 @@ include ../Makefile.config
 LLVM_LIBS = llvm.cma llvm_analysis.cma llvm_bitwriter.cma llvm_scalar_opts.cma llvm_target.cma
 
 OCAMLC_OPTS = -dtypes -warn-error A
+OCAML_INCLUDE = $(LLVM_INCLUDE)
 LIBS = unix.cma $(LLVM_LIBS)
 LIBSOPT = $(LIBS:.cma=.cmxa)
-INCLUDE = -I $(OCAMLLIB)
-CLIBS = $($(OCAMLLIB), $(LLVM_LIBS:.cma=.a))
 
 default: limlc
-
-.PHONY: limlc
 
 OBJECTS_ML = \
 	genGlobals.ml\
@@ -72,40 +69,38 @@ OBJECTS_CMO = $(OBJECTS_ML:.ml=.cmo)
 OBJECTS_CMX = $(OBJECTS_ML:.ml=.cmx)	
 
 limlc: $(OBJECTS_CMX)
-	$(OCAMLOPT) -o $@ $(INCLUDE) $(LIBSOPT) -cclib -lstdc++ $(OBJECTS_CMX)
+	$(OCAMLOPT) -o $@ -g $(OCAML_INCLUDE) $(LIBSOPT) -cclib -lstdc++ $(OBJECTS_CMX)
 
 limlc.bc: $(OBJECTS_CMO)
-	$(OCAMLC) $(OCAMLC_OPTS) -g -cc $(CPP) \
-		$(INCLUDE) $(LIBS) $(OBJECTS_CMO) \
-		-o $@ 
+	$(OCAMLC) -o $@ -g $(OCAML_INCLUDE) $(OCAMLC_OPTS) $(LIBS) -cclib -lstdc++ $(OBJECTS_CMO)
 
 ##############################################################################
 
 %.cmo : %.ml
-	$(OCAMLC) $(INCLUDE) $(OCAMLC_CFLAGS) -c -g $<
+	$(OCAMLC) $(OCAML_INCLUDE) $(OCAMLC_CFLAGS) -c -g $<
 
 %.cmi : %.mli
-	$(OCAMOPT) $(OCAMLOPT_CFLAGS) $(INCLUDE) $<  
+	$(OCAMLOPT) $(OCAMLOPT_CFLAGS) $(OCAML_INCLUDE) $<  
 
 %.cmx : %.ml
-	$(OCAMLOPT) $(OCAMLOPT_CFLAGS) $(INCLUDE) $(PP) -c $<  
+	$(OCAMLOPT) $(OCAMLOPT_CFLAGS) $(OCAML_INCLUDE) $(PP) -c $<  
 
 %.ml : %.mll
 	$(OCAMLLEX) $<
 
 %.ml %.mli : %.mly
-	$(OCAMLYACC) -v $<
+	$(OCAMLYACC) $<
 
 ###############################################################################
 
 .depend: $(OBJECTS_ML)
-	$(OCAMLDEP) -native -slash $(INCLUDE) $(OBJECTS_ML) > .depend
+	$(OCAMLDEP) -native -slash $(OCAML_INCLUDE) $(OBJECTS_ML) > .depend
 
 clean: 
-	rm -f *.cm* pkl *~ lexer.ml parser.ml parser.mli lexer.mli *.o* \#*
+	rm -f *.cm* *.o* lexer.ml parser.ml parser.mli
 	rm -f limlc limlc.bc liml liml.bc *.annot .depend
 	rm -f test/*.o test/*.s 
 	rm -f test/*.bc test/*~
-	cd ../stdlib && make clean
+	$(MAKE) -C ../stdlib clean
 
 -include .depend

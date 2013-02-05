@@ -13,9 +13,7 @@ stdlib/libliml.lmli: compiler/limlc
 	$(MAKE) -C stdlib
 
 clean: 
-	rm -f *~
 	$(MAKE) -C compiler clean
-	$(MAKE) -C stdlib clean
 
 Makefile.config: configure
 	$(error run ./configure)

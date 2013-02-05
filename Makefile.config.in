@@ -6,7 +6,7 @@ OCAMLLEX  = @OCAMLLEX@
 OCAMLYACC = @OCAMLYACC@
 
 CC        = @CC@
-CPP       = @CXX@
 AR        = @AR@
 
-OCAMLLIB  = @LLVM_DIR@
+LLVM_DIR      = @LLVM_DIR@
+LLVM_INCLUDE  = @LLVM_INCLUDE@

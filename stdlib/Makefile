@@ -1,10 +1,8 @@
--include ../Makefile.config
+include ../Makefile.config
 
 CC_OPT = -O3
 
 default: libliml.a
-
-.PHONY: libliml.a
 
 SOURCES =\
 	thread.c\
@@ -29,15 +27,14 @@ LML_SOURCES =\
 
 OBJECTS = $(SOURCES:.c=.o)	
 
-libliml.a: $(OBJECTS) $(LML_SOURCES)
-	@rm -f libliml.a
+libliml.a: $(OBJECTS) $(LML_SOURCES) ../compiler/limlc
 	../compiler/limlc -no-stdlib $(LML_SOURCES) -lib libliml.lmli 
-	$(AR) r libliml.a $(OBJECTS)
+	$(AR) rc libliml.a $(OBJECTS)
 
 ##############################################################################
 
 %.o : %.c
-	$(CC) $(CC_OPT) $(CC_ARCH) -c $<
+	$(CC) $(CC_OPT) -Wall -c $<
 
 
 ###############################################################################
