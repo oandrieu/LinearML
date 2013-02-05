@@ -633,6 +633,7 @@ and binop env bop p ty =
   | Ast.Emod
   | Ast.Ediv -> ty
   | Ast.Eand | Ast.Eor -> Type.unify_el env ty (p, Tprim Tbool)
+  | Ast.Eband -> assert false
 
 and value = function
   | Nast.Eunit -> Tunit

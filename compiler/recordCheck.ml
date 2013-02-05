@@ -87,7 +87,7 @@ and assign_ pos t ty1 ty2 =
 and assign_map pos m2 x (a1, _) m = try
   let a2, t as t2 = IMap.find x m2 in
   match a1, a2 with
-  | Read _, Read _ when is_pointer t -> Error.fd_already_has_value pos x
+  | Read, Read when is_pointer t -> Error.fd_already_has_value pos x
   | _, Write _ -> assert false
   | _-> IMap.add x t2 m
 with Not_found -> m
@@ -112,9 +112,9 @@ module Unify = struct
 
   and unify_access x a1 a2 =
     match a1, a2 with
-    | Read _, Read _ -> ()
-    | Write p, Read _
-    | Read _, Write p -> raise (Error x)
+    | Read, Read -> ()
+    | Write p, Read
+    | Read, Write p -> raise (Error x)
     | Write _, Write _ -> ()
 
   let rec unify_types (p1, tyl1) (p2, tyl2) =
@@ -133,7 +133,7 @@ and check_type_ pos = function
 and check_field pos x (a, ty) =
   check_type pos ty ;
   match a with
-  | Read _ -> ()
+  | Read -> ()
   | Write p -> Error.missing_field pos x
 
 let rec type_expr_list (_, tyl) = List.map type_expr tyl
@@ -147,7 +147,7 @@ and type_expr_ = function
   | Tapply ((_, x), _) -> Rid x
 
 let read_only pos = function
-  | Read _ -> ()
+  | Read -> ()
   | Write _ -> Error.field_no_val pos
 
 let free_field t pos v (x, ty) =

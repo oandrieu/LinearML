@@ -278,7 +278,7 @@ module CheckRestrict = struct
   and simpl_pat (pos, p) = simpl_pat_ pos p
   and simpl_pat_ pos = function
     | Pid _ -> ()
-    | Pany _ -> ()
+    | Pany -> ()
     | Ptuple l -> List.iter simpl_pat l
     | _ -> error pos
 

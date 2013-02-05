@@ -196,9 +196,9 @@ module Type = struct
   and type_prim ctx = function 
     | Tunit -> type_prim ctx Tint
     | Tbool -> i1_type ctx
-    | Tchar _
+    | Tchar
     | Tint when Global.arch_type = "ARCH_32" -> i32_type ctx 
-    | Tchar _
+    | Tchar
     | Tint  -> i64_type ctx 
     | Tfloat when Global.arch_type = "ARCH_32" -> float_type ctx
     | Tfloat -> double_type ctx
@@ -916,6 +916,7 @@ and binop ty = function
       | _ -> assert false)
   | Eand -> build_and
   | Eor -> build_or
+  | Eband -> assert false
 
 and const env ty = function
   | Eunit -> const_int_of_string ty "0" 10

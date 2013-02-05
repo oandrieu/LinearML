@@ -463,7 +463,7 @@ and pat_ t ty p v =
 
 and pat_field pos v t (_, pf) = pat_field_ pos v t pf
 and pat_field_ pos v t = function
-  | PFany _ -> Env.bind (Type.make_pany pos) v t
+  | PFany -> Env.bind (Type.make_pany pos) v t
   | PFid x -> Env.bind x v t
   | PField (_, p) -> pat t p (make_value v p)
 
