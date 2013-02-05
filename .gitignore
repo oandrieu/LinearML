@@ -28,3 +28,7 @@ TODO
 *.s
 *.bc
 genGlobals.ml
+autom4te.cache
+config.log
+config.status
+configure

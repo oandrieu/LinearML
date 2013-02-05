@@ -1,0 +1,13 @@
+
+let arch_type      = "@march@"
+let tramp_size     = @trampoline_size@
+let tramp_align    = @stack_align@
+let max_reg_return = @max_reg_ret@
+let data_layout    = "@data_layout@"
+
+let llc  = "@LLC@"
+let opt  = "@OPT@"
+let cc   = "@CC@"
+let ar   = "@AR@"
+
+let stdlibdir = "@stdlibdir@"

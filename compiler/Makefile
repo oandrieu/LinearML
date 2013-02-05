@@ -1,5 +1,7 @@
 
--include ../Makefile.config
+include ../Makefile.config
+
+LLVM_LIBS = llvm.cma llvm_analysis.cma llvm_bitwriter.cma llvm_scalar_opts.cma llvm_target.cma
 
 OCAMLC_OPTS = -dtypes -warn-error A
 LIBS = unix.cma $(LLVM_LIBS)
@@ -70,10 +72,7 @@ OBJECTS_CMO = $(OBJECTS_ML:.ml=.cmo)
 OBJECTS_CMX = $(OBJECTS_ML:.ml=.cmx)	
 
 limlc: $(OBJECTS_CMX)
-	echo $(LIBS)
-	$(OCAMLOPT) -cc $(CPP) $(INCLUDE) \
-		-linkall $(CLIBS) $(LIBSOPT) $(OBJECTS_CMX) \
-		-o $@		
+	$(OCAMLOPT) -o $@ $(INCLUDE) $(LIBSOPT) -cclib -lstdc++ $(OBJECTS_CMX)
 
 limlc.bc: $(OBJECTS_CMO)
 	$(OCAMLC) $(OCAMLC_OPTS) -g -cc $(CPP) \
@@ -86,10 +85,10 @@ limlc.bc: $(OBJECTS_CMO)
 	$(OCAMLC) $(INCLUDE) $(OCAMLC_CFLAGS) -c -g $<
 
 %.cmi : %.mli
-	$(OCAMLC) $(OCAMLOPT_CFLAGS) $(INCLUDE) $<  
+	$(OCAMOPT) $(OCAMLOPT_CFLAGS) $(INCLUDE) $<  
 
 %.cmx : %.ml
-	$(OCAMLOPT) $(OCAMLOPT_CFLAGS) $(INCLUDE) $(PP) -annot -c $<  
+	$(OCAMLOPT) $(OCAMLOPT_CFLAGS) $(INCLUDE) $(PP) -c $<  
 
 %.ml : %.mll
 	$(OCAMLLEX) $<

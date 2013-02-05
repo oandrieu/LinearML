@@ -1,0 +1,4 @@
+
+#undef ARCH_32
+
+#undef ARCH_64
